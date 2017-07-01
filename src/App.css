@@ -1,0 +1,37 @@
+.container{
+	margin: 0px;
+	padding: 0px;
+	width: 100vw;
+	height: 100vh;
+}
+
+.the-table{
+  background: #5BC0DE;
+  width: 100vw;
+  height: 200vh;
+}
+
+.card img{
+  /* height: 249px; */
+  width: 100px;
+  border-radius: 6px;
+  /* background: url('/cards/deck.png') */
+}
+
+.button-wrapper{
+  margin-top: 10px
+}
+
+.btn{
+  border: none;
+}
+
+.the-pot{
+  font-size: 25px;
+  font-weight: bold;
+  color: white;
+}
+
+.players-hand{
+  min-height: 150px;
+}
