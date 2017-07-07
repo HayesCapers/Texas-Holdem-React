@@ -313,14 +313,14 @@ var functions = {
 	findWinner: function(obj1,obj2){
 		if(obj1.rank === obj2.rank){
 			if(tieFunct.tieBreak(obj1,obj2)){
-				console.log('YOU are WINNING!')
+				return true
 			}else {
-				console.log('dealer is winning... :-(')
+				return false
 			}
 		}else if(obj1.rank > obj2.rank){
-			console.log('YOU are WINNING')
+			return true
 		}else{
-			console.log('dealer is winning... :-(')
+			return false
 		}
 	}
 }
