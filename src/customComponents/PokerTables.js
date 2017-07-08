@@ -1,10 +1,11 @@
 import React, { Component } from 'react';
 // import $ from 'jquery'
-import PokerHand from './PokerHand.js'
-import Deck from '../utilityClasses/deck.js'
-import Buttons from './Buttons.js'
-import ThePot from './ThePot.js'
-import PlayerBank from './PlayerBank'
+import PokerHand from './PokerHand.js';
+import Deck from '../utilityClasses/deck.js';
+import Buttons from './Buttons.js';
+import ThePot from './ThePot.js';
+import PlayerBank from './PlayerBank';
+import HandInfo from './HandInfo';
 // var pokerFunct = require('../myMods/pokerFunctionMods/poker.js')
 var uFunct = require('../myMods/pokerFunctionMods/functions.js')
 
@@ -16,7 +17,10 @@ class PokerTable extends Component{
 		this.state = {
 			playerBank: 5000,
 			dealersHand: ['deck','deck'],
+			dealerBestHand: {},
+			dealerShownCards: ['deck','deck'],
 			playersHand: ['deck','deck'],
+			playersBestHand: {},
 			communityCards: [],
 			wager: 0,
 			turn: 0
@@ -54,13 +58,17 @@ class PokerTable extends Component{
 	}
 
 	playerBet(amount){
-		var p1Hand = this.state.playersHand
-		var p2Hand = this.state.dealersHand
-		var comCards = this.state.communityCards
-		var updatePlayerBank = this.state.playerBank - parseInt(amount);
-		var newWager = this.state.wager + (parseInt(amount) * 2);
-		var potentialPlayerBank = this.state.playerBank + newWager
-		var addTurn = this.state.turn + 1;
+		let p1Hand = this.state.playersHand;
+		let p2Hand = this.state.dealersHand;
+		let comCards = this.state.communityCards;
+		let newAmount = uFunct.checkBetAmount(this.state.playerBank,amount);
+		let updatePlayerBank = this.state.playerBank - newAmount;
+		let newWager = this.state.wager + (newAmount * 2);
+		let potentialPlayerBank = this.state.playerBank + newWager;
+		let addTurn = this.state.turn + 1;
+		this.checkHands(p1Hand,p2Hand,comCards);
+		console.log(this.state.playersBestHand)
+		console.log(this.state.dealerBestHand)
 		this.setState({
 			playerBank: updatePlayerBank,
 			wager: newWager,
@@ -74,6 +82,7 @@ class PokerTable extends Component{
 				this.setState({
 					playerBank: potentialPlayerBank,
 					dealersHand: ['deck','deck'],
+					dealerShownCards: p2Hand,
 					playersHand: ['deck','deck'],
 					communityCards: [],
 					wager: 0,
@@ -83,6 +92,7 @@ class PokerTable extends Component{
 				console.log('COMP WON')
 				this.setState({
 					dealersHand: ['deck','deck'],
+					dealerShownCards: p2Hand,
 					playersHand: ['deck','deck'],
 					communityCards: [],
 					wager: 0,
@@ -97,31 +107,36 @@ class PokerTable extends Component{
 	}
 
 	playerCheck(){
-		var p1Hand = this.state.playersHand
-		var p2Hand = this.state.dealersHand
-		var comCards = this.state.communityCards
+		var p1Hand = this.state.playersHand;
+		var p2Hand = this.state.dealersHand;
+		var comCards = this.state.communityCards;
 		var addTurn = this.state.turn + 1;
-		var potentialPlayerBank = this.state.playerBank + this.state.wager
+		var potentialPlayerBank = this.state.playerBank + this.state.wager;
+		this.checkHands(p1Hand,p2Hand,comCards);
+		console.log(this.state.playersBestHand)
+		console.log(this.state.dealerBestHand)
 		this.setState({
 			turn: addTurn
 		});
 		if(this.state.turn === 1){
 			this.flop()
 		}else if(this.state.turn >= 4){
-			if(this.checkHands(p1Hand,p2Hand,comCards)){
-				console.log('player WON')
+			if(uFunct.findWinner(this.state.playersBestHand,this.state.dealerBestHand)){
+				// console.log('player WON')
 				this.setState({
 					playerBank: potentialPlayerBank,
 					dealersHand: ['deck','deck'],
+					dealerShownCards: p2Hand,
 					playersHand: ['deck','deck'],
 					communityCards: [],
 					wager: 0,
 					turn: 0
 				})
 			}else{
-				console.log('COMP WON')
+				// console.log('COMP WON')
 				this.setState({
 					dealersHand: ['deck','deck'],
+					dealerShownCards: p2Hand,
 					playersHand: ['deck','deck'],
 					communityCards: [],
 					wager: 0,
@@ -130,12 +145,13 @@ class PokerTable extends Component{
 			}	
 		}else{
 			this.draw()
-		}	
+		}
+
 		// this.checkHands(p1Hand,p2Hand,comCards)
 	}
 
 	playerFold(){
-		var newPlayerBank = this.state.playerBank - this.state.wager;
+		var newPlayerBank = this.state.playerBank;
 		this.setState({
 			playerBank: newPlayerBank,
 			dealersHand: ['deck','deck'],
@@ -152,10 +168,13 @@ class PokerTable extends Component{
 		player1Hands = uFunct.combine(player1Hands,5)
 		dealerHands = uFunct.combine(dealerHands,5)
 		var player1BestHand = uFunct.findBestHand(player1Hands)
-		console.log(player1BestHand)
+		// console.log(player1BestHand)
 		var dealerBestHand = uFunct.findBestHand(dealerHands)
-		console.log(dealerBestHand)
-		return uFunct.findWinner(player1BestHand,dealerBestHand)
+		// console.log(dealerBestHand)
+		this.setState({
+			dealerBestHand: dealerBestHand,
+			playersBestHand: player1BestHand
+		})
 	}
 
 	flop(){
@@ -184,10 +203,11 @@ class PokerTable extends Component{
 		return(
 			<div className='col-sm-12 the-table'>
 				<ThePot wager={this.state.wager} />
-				<PokerHand cards={this.state.dealersHand} /> {/* The computers cards */}
+				<PokerHand cards={this.state.dealerShownCards} /> {/* The computers cards */}
 				<PokerHand cards={this.state.communityCards} /> {/* Community cards */}
 				<PokerHand cards={this.state.playersHand} /> {/* The player cards */}
 				<PlayerBank balance={this.state.playerBank} />
+				<HandInfo hand={this.state.playersBestHand}/>
 				<Buttons deal={this.prepDeck} bet={this.playerBet} check={this.playerCheck} fold={this.playerFold} />
 			</div>
 		)

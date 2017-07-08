@@ -322,6 +322,47 @@ var functions = {
 		}else{
 			return false
 		}
+	},
+
+	checkBetAmount(bank,amount){
+		if (bank > amount){
+			return amount
+		}else{
+			return bank
+		}
+	},
+
+	printString(obj){
+		var stringToPrint = '';
+		if ((obj.rank === 0 || obj.rank == undefined)){
+			stringToPrint = 'You Got nothin!'
+		}else if(obj.rank === 1){
+			stringToPrint = obj.handValues[-1] + ' high'
+		}else if((obj.rank === 2) || (obj.rank === 3)){
+			stringToPrint = 'pair of ' 
+			for (let i = 0; i < obj.pairs; i++){
+				if (i == 0){
+					stringToPrint += obj.pairs[i] + 's'
+				}else{
+					stringToPrint += ' and ' + obj.pairs[i] + 's'
+				}
+			}
+		}else if(obj.rank === 4){
+			stringToPrint = 'triple ' + obj.trips + 's'
+		}else if (obj.rank === 5){
+			stringToPrint = obj.handValues[-1] + 'high straight'
+		}else if (obj.rank === 6){
+			stringToPrint = obj.handValues[-1] + 'high flush'
+		}else if (obj.rank === 7){
+			stringToPrint = 'fullhouse. ' + obj.trips + ' full of ' + obj.pairs[0]
+		}else if (obj.rank === 8){
+			stringToPrint = 'quad ' + obj.quads + 's'
+		}else if (obj.rank === 9){
+			stringToPrint = obj.handValues[-1] = ' high straight flush Bitch!'
+		}else{
+			stringToPrint = 'I Dont Fucking know'
+		}
+		return stringToPrint
 	}
 }
 
